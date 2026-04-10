@@ -18,30 +18,24 @@
       padding: 20px 32px;
       text-align: center;
       border-bottom: 3px solid #e94560;
+      flex-shrink: 0;
     }
-    header h1 {
-      font-size: 1.5rem;
-      color: #fff;
-      font-weight: 600;
-    }
-    header p {
-      margin-top: 4px;
-      font-size: 0.85rem;
-      color: #8892b0;
-    }
+    header h1 { font-size: 1.5rem; color: #fff; font-weight: 600; }
+    header p { margin-top: 4px; font-size: 0.85rem; color: #8892b0; }
     main {
       flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 32px 20px;
+      padding: 24px;
       overflow: auto;
     }
-    .mermaid {
-      max-width: none;
+    #diagram-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
-    .mermaid svg {
-      min-width: 1200px;
-      font-size: 15px;
+    #diagram-container svg {
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
     }
     footer {
       text-align: right;
@@ -49,6 +43,7 @@
       font-size: 0.8rem;
       color: #666;
       border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
     }
     @media print {
       header, footer { display: none; }
@@ -63,7 +58,8 @@
     <p>Loan Approval Document Auto-Generation Pipeline</p>
   </header>
   <main>
-    <pre class="mermaid">
+    <div id="diagram-container">
+      <pre class="mermaid">
 graph TD
     A["🏁 여신승인신청서 자동생성 프로젝트"] --> B{"입력 자료 분기"}
 
@@ -129,7 +125,8 @@ graph TD
     style M fill:#533483,color:#fff
     style N fill:#533483,color:#fff
     style J fill:#2d6a4f,color:#fff
-    </pre>
+      </pre>
+    </div>
   </main>
   <footer>작성자: IT기획팀 김정호 &nbsp;|&nbsp; 여신승인신청서 자동생성 파이프라인 &copy; 2026</footer>
 
@@ -139,16 +136,26 @@ graph TD
       startOnLoad: true,
       theme: 'default',
       themeVariables: {
-        fontSize: '15px',
-        nodeTextSize: '15px'
+        fontSize: '16px'
       },
       flowchart: {
         curve: 'basis',
         padding: 30,
         htmlLabels: true,
         useMaxWidth: false,
-        nodeSpacing: 30,
-        rankSpacing: 50
+        nodeSpacing: 40,
+        rankSpacing: 60
+      }
+    });
+
+    // 렌더 후 SVG를 뷰포트 너비에 맞춰 확대
+    mermaid.run().then(() => {
+      const svg = document.querySelector('#diagram-container svg');
+      if (svg) {
+        svg.removeAttribute('height');
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+        svg.style.maxWidth = 'none';
       }
     });
   </script>
