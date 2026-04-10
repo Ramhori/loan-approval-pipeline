@@ -77,22 +77,34 @@
   <div class="track-desc">외부에서 Python으로 파싱·매핑 코드를 완성하고, 내부망에 이식하여 LLM(Alli 등)에 연결하는 구조.<br/>정확도가 가장 높으나, <b>내부망 Python 설치가 전제조건.</b></div>
   <div class="mermaid">
 graph TD
-    A1["<b>IM / 전체자료 확보</b></br>양식 필드 목록표 작성"] --> B1["<b>외부에서 코드 개발</b></br>더미 데이터 기반"]
-    B1 --> B1a["pdfplumber 파싱 로직"]
-    B1 --> B1b["필드 매핑 테이블"]
-    B1 --> B1c["분기 판단 모듈"]
-    B1 --> B1d["docx 템플릿 렌더링"]
-    B1 --> B1e["부족항목 검출 모듈"]
+    A1["<b>IM / 전체자료 확보</b></br>양식 필드 목록표 작성"] --> T1{"<b>문서 형태?</b>"}
+    T1 -->|"텍스트+표 PDF"| P1["pdfplumber 추출</br>텍스트 ~99% / 표 ~90%</br>※텍스트PDF 한정"]
+    T1 -->|"스캔 PDF/이미지"| OCR1{"<b>OCR 선택</b>"}
+    OCR1 -->|"무료"| OC1["PaddleOCR</br>폐쇄망OK / 한글 ~70%"]
+    OCR1 -->|"유료"| OC2["ABBYY</br>폐쇄망OK / 한글 ~90%"]
+    P1 --> B1["<b>외부에서 코드 개발</b></br>더미 데이터 기반"]
+    OC1 --> B1
+    OC2 --> B1
+    B1 --> B1a["파싱 로직</br>PDF에서 텍스트·표 추출"]
+    B1 --> B1b["필드 매핑 테이블</br>추출 항목↔신청서 필드 연결"]
+    B1 --> B1c["분기 판단 모듈</br>IM만 / 전체자료 자동 판별"]
+    B1 --> B1d["docx 템플릿 렌더링</br>매핑 결과→신청서 양식 출력"]
+    B1 --> B1e["부족항목 검출 모듈</br>필수 필드 누락 시 리스트 출력"]
     B1a --> C1["더미 데이터로 동작 검증</br>정확도 측정"]
     B1b --> C1
     B1c --> C1
     B1d --> C1
     B1e --> C1
-    C1 --> D1["코드 내부망 반입</br>USB / 반입 절차"]
+    C1 --> D1["코드 + 모델 내부망 반입</br>USB / 반입 절차"]
     D1 --> E1["내부망 Python 환경에서 실행</br>비정형 해석 시에만 LLM 호출"]
-    E1 --> F1["<b>결과: 코드 기반 고정확도 초안</b>"]
+    E1 --> F1["<b>결과: 코드 로직 기반</b></br><b>여신승인신청서 초안</b>"]
 
     style A1 fill:#15803d,color:#fff,stroke:#166534,stroke-width:3px
+    style T1 fill:#f8fafc,color:#000,stroke:#15803d,stroke-width:3px
+    style P1 fill:#16a34a,color:#fff,stroke:#15803d,stroke-width:2px
+    style OCR1 fill:#f8fafc,color:#000,stroke:#15803d,stroke-width:3px
+    style OC1 fill:#16a34a,color:#fff,stroke:#15803d,stroke-width:2px
+    style OC2 fill:#ca8a04,color:#fff,stroke:#a16207,stroke-width:2px
     style B1 fill:#22c55e,color:#fff,stroke:#16a34a,stroke-width:2px
     style B1a fill:#dcfce7,color:#166534,stroke:#16a34a,stroke-width:1px
     style B1b fill:#dcfce7,color:#166534,stroke:#16a34a,stroke-width:1px
@@ -106,9 +118,9 @@ graph TD
   </div>
   <div class="result-box result-1">
     <div class="result-label">▶ 트랙 1 결과물</div>
-    코드 기반 파이프라인이 내부망에서 실행됨. LLM은 비정형 텍스트 해석에만 호출.<br/>
+    코드 기반 파이프라인이 내부망에서 실행됨. 문서 형태에 따라 pdfplumber 또는 OCR(PaddleOCR/ABBYY) 사용.<br/>
     <b>장점:</b> 정확도 최상, 유지보수 용이, 프롬프트 의존도 낮음<br/>
-    <b>전제:</b> 내부망 Python 환경 설치 필요
+    <b>전제:</b> 내부망 Python 환경 설치 필요, OCR 사용 시 모델 파일 반입
   </div>
   <div class="final-box">
     <div class="result-label">🏁 공통 최종 단계</div>
