@@ -8,75 +8,48 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0a1a;
-      color: #e0e0e0;
-      min-height: 100vh;
+      background: #fff;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
     header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      padding: 24px 32px;
-      border-bottom: 2px solid #e94560;
+      background: #1a1a2e;
+      padding: 20px 32px;
       text-align: center;
+      border-bottom: 3px solid #e94560;
     }
     header h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
+      font-size: 1.5rem;
       color: #fff;
-      letter-spacing: 0.5px;
+      font-weight: 600;
     }
     header p {
-      margin-top: 6px;
-      font-size: 0.9rem;
-      color: #8892b0;
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      padding: 16px;
-      background: #0f0f23;
-      border-bottom: 1px solid #1a1a3e;
-    }
-    .controls button {
-      padding: 8px 20px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      background: #1a1a2e;
-      color: #ccc;
-      cursor: pointer;
+      margin-top: 4px;
       font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-    .controls button:hover {
-      background: #e94560;
-      color: #fff;
-      border-color: #e94560;
+      color: #8892b0;
     }
     main {
       flex: 1;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 32px;
+      padding: 32px 20px;
       overflow: auto;
     }
-    #diagram {
-      background: #12122a;
-      border-radius: 12px;
-      padding: 32px;
-      border: 1px solid #1e1e3a;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    .mermaid {
       max-width: 100%;
-      overflow-x: auto;
     }
     footer {
-      text-align: center;
-      padding: 16px;
-      font-size: 0.75rem;
-      color: #555;
-      border-top: 1px solid #1a1a3e;
+      text-align: right;
+      padding: 14px 32px;
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #e0e0e0;
+    }
+    @media print {
+      header, footer { display: none; }
+      body { padding: 0; }
+      @page { size: landscape; margin: 10mm; }
     }
   </style>
 </head>
@@ -85,21 +58,14 @@
     <h1>여신승인신청서 자동생성 파이프라인</h1>
     <p>Loan Approval Document Auto-Generation Pipeline</p>
   </header>
-  <div class="controls">
-    <button onclick="zoomIn()">확대 (+)</button>
-    <button onclick="zoomOut()">축소 (−)</button>
-    <button onclick="resetZoom()">초기화</button>
-  </div>
   <main>
-    <div id="diagram">
-      <pre class="mermaid">
+    <pre class="mermaid">
 graph TD
     A["🏁 여신승인신청서 자동생성 프로젝트"] --> B{"입력 자료 분기"}
 
     B -->|"IM만 있음"| C["IM 문서 파싱"]
     B -->|"전체 자료 있음<br/>(IM+재무제표+CBS+담보평가)"| D["전체 문서 파싱"]
 
-    %% IM Only 분기
     C --> C1{"IM 문서 형태?"}
     C1 -->|"텍스트+표 PDF"| C2["pdfplumber 추출<br/>(Python 필요)"]
     C1 -->|"스캔 PDF/이미지"| C3{"OCR 선택"}
@@ -108,17 +74,15 @@ graph TD
     C3 -->|"무료 오픈소스"| C5["PaddleOCR<br/>✅ 폐쇄망 가능<br/>⚠️ 한글 정확도 중간"]
     C3 -->|"유료 도입"| C6["ABBYY FineReader<br/>✅ 폐쇄망 설치형<br/>✅ 한글 정확도 높음<br/>💰 라이선스 비용"]
 
-    %% 전체 자료 분기
     D --> D1{"내부망 환경"}
     D1 -->|"Python 설치 가능"| D2["코드 기반 파이프라인<br/>pdfplumber + 매핑 로직<br/>✅ 정확도 높음<br/>✅ 성과 레벨 높음"]
     D1 -->|"Python 설치 불가"| D3["Alli 프롬프팅 기반<br/>⚠️ 정확도 Alli 의존<br/>✅ 도입 허들 낮음"]
 
-    %% 외부 설계 영역
-    C2 --> E["🔧 외부(Claude) 설계 영역"]
+    C2 --> E["🔧 외부 Claude 설계 영역"]
     C5 --> E
     C6 --> E
     D2 --> E
-    C4 --> F["🔧 외부(Claude) 프롬프트 설계"]
+    C4 --> F["🔧 외부 Claude 프롬프트 설계"]
     D3 --> F
 
     E --> E1["코드 기반 산출물"]
@@ -134,7 +98,6 @@ graph TD
     F1 --> F1c["분기 로직 설계서"]
     F1 --> F1d["docx 양식 템플릿"]
 
-    %% 내부망 실행
     E1 --> G["📦 내부망 이식"]
     F1 --> H["📦 Alli에 이식"]
 
@@ -149,7 +112,6 @@ graph TD
     I1 -->|"필드 누락"| K["⚠️ 부족항목 리스트 출력<br/>→ 담당자 보완"]
     K --> J
 
-    %% 웹 배포 옵션
     I --> L{"배포 방식"}
     L -->|"IM 초안 전용"| M["🌐 웹사이트 배포<br/>(PWA/내부 웹)"]
     L -->|"전체 자료 연동"| N["🖥️ 내부 시스템 연동<br/>(CBS/여신원장 API)"]
@@ -157,70 +119,30 @@ graph TD
     M --> M1["영업점 접속<br/>→ IM 업로드<br/>→ 초안 자동생성<br/>→ 다운로드"]
     N --> N1["내부 데이터 자동 연결<br/>→ 완성본에 가까운 출력"]
 
-    %% PoC 단계
-    subgraph POC ["🧪 PoC 단계 (우선)"]
-        P1["IM 샘플 3~5건 확보<br/>(허접한 것 포함)"]
-        P2["양식 필드 목록표 작성<br/>(빈 템플릿 외부 반출)"]
-        P3["Claude로 파싱+매핑 테스트"]
-        P4["정확도 측정 및 한계점 파악"]
-        P5["보고: 가능 범위 + 필요 인프라"]
-        P1 --> P2 --> P3 --> P4 --> P5
-    end
-
-    %% 스타일
     style A fill:#1a1a2e,color:#fff,stroke:#e94560
-    style POC fill:#0f3460,color:#fff,stroke:#e94560
     style E fill:#16213e,color:#fff,stroke:#0f3460
     style F fill:#16213e,color:#fff,stroke:#0f3460
     style M fill:#533483,color:#fff
     style N fill:#533483,color:#fff
     style J fill:#2d6a4f,color:#fff
-      </pre>
-    </div>
+    </pre>
   </main>
-  <footer style="text-align:right;padding-right:32px;">작성자: IT기획팀 김정호 &nbsp;|&nbsp; 여신승인신청서 자동생성 파이프라인 &copy; 2026</footer>
+  <footer>작성자: IT기획팀 김정호 &nbsp;|&nbsp; 여신승인신청서 자동생성 파이프라인 &copy; 2026</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script>
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'dark',
+      theme: 'default',
       themeVariables: {
-        primaryColor: '#1a1a2e',
-        primaryTextColor: '#fff',
-        primaryBorderColor: '#e94560',
-        lineColor: '#8892b0',
-        secondaryColor: '#16213e',
-        tertiaryColor: '#0f3460',
-        fontSize: '14px'
+        fontSize: '18px'
       },
       flowchart: {
         curve: 'basis',
-        padding: 20,
-        htmlLabels: true,
-        useMaxWidth: false
+        padding: 24,
+        htmlLabels: true
       }
     });
-
-    let currentZoom = 1;
-    const diagram = document.getElementById('diagram');
-
-    function zoomIn() {
-      currentZoom = Math.min(currentZoom + 0.2, 3);
-      diagram.style.transform = `scale(${currentZoom})`;
-      diagram.style.transformOrigin = 'top left';
-    }
-
-    function zoomOut() {
-      currentZoom = Math.max(currentZoom - 0.2, 0.3);
-      diagram.style.transform = `scale(${currentZoom})`;
-      diagram.style.transformOrigin = 'top left';
-    }
-
-    function resetZoom() {
-      currentZoom = 1;
-      diagram.style.transform = 'scale(1)';
-    }
   </script>
 </body>
 </html>
