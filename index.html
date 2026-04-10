@@ -37,7 +37,11 @@
       overflow: auto;
     }
     .mermaid {
-      max-width: 100%;
+      max-width: none;
+    }
+    .mermaid svg {
+      min-width: 1200px;
+      font-size: 15px;
     }
     footer {
       text-align: right;
@@ -135,12 +139,16 @@ graph TD
       startOnLoad: true,
       theme: 'default',
       themeVariables: {
-        fontSize: '18px'
+        fontSize: '15px',
+        nodeTextSize: '15px'
       },
       flowchart: {
         curve: 'basis',
-        padding: 24,
-        htmlLabels: true
+        padding: 30,
+        htmlLabels: true,
+        useMaxWidth: false,
+        nodeSpacing: 30,
+        rankSpacing: 50
       }
     });
   </script>
